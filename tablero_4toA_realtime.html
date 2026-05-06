@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Las Casas de 4to A</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cinzel', Georgia, serif;
+    background: #050505;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .container { width: 100%; max-width: 860px; }
+
+  .title-section { text-align: center; padding: 2rem 1rem 2rem; }
+  .title-section h1 {
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 900;
+    color: #d4a017;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    text-shadow: 0 0 40px rgba(212,160,23,0.35), 0 2px 8px rgba(0,0,0,0.8);
+    animation: flicker 6s infinite;
+  }
+  @keyframes flicker {
+    0%,95%,100% { opacity:1; } 96% { opacity:0.85; } 97% { opacity:1; } 98% { opacity:0.9; }
+  }
+  .title-section .subtitle { font-size: clamp(10px,2vw,13px); color: #666; letter-spacing: 5px; margin-top: 8px; text-transform: uppercase; }
+  .divider { width: 70%; margin: 1rem auto; height: 1px; background: linear-gradient(90deg, transparent, #d4a017 40%, #d4a017 60%, transparent); opacity: 0.35; }
+
+  .sync-indicator {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,255,255,0.25); margin-bottom: 0.5rem;
+  }
+  .sync-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #555; transition: background 0.4s;
+  }
+  .sync-dot.online { background: #44dd77; box-shadow: 0 0 8px rgba(68,221,119,0.6); animation: pulse 2s infinite; }
+  .sync-dot.offline { background: #dd4444; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+  .teams-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; padding: 1rem 0 1.5rem;
+  }
+  @media (max-width: 520px) { .teams-grid { grid-template-columns: 1fr; gap: 12px; } }
+
+  .team-card {
+    border-radius: 10px; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; transition: transform 0.25s ease;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .team-card:hover { transform: translateY(-4px); }
+  .team-card.demonios { background: linear-gradient(180deg,#3a0000 0%,#1a0000 55%,#0b0000 100%); border-color: rgba(180,0,0,0.25); box-shadow: 0 4px 30px rgba(200,0,0,0.1); }
+  .team-card.tobillinium { background: linear-gradient(180deg,#1e0a3a 0%,#0f0520 55%,#060218 100%); border-color: rgba(100,0,200,0.25); box-shadow: 0 4px 30px rgba(100,0,200,0.1); }
+  .team-card.perro { background: linear-gradient(180deg,#1c1c1c 0%,#0d0d0d 55%,#040404 100%); border-color: rgba(140,140,140,0.2); box-shadow: 0 4px 30px rgba(100,100,100,0.08); }
+
+  .banner-wrap { width: 100%; padding: 18px 14px 10px; display: flex; justify-content: center; }
+  .banner-wrap svg { width: 100%; max-width: 160px; height: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6)); }
+
+  .team-name { font-size: clamp(9px,1.5vw,13px); font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 4px 8px 2px; text-align: center; }
+  .demonios .team-name { color: #d4a017; }
+  .tobillinium .team-name { color: #c0a0f0; }
+  .perro .team-name { color: #c8c8c8; }
+
+  .score-display { font-size: clamp(40px,8vw,68px); font-weight: 900; line-height: 1; padding: 10px 12px 4px; transition: transform 0.15s ease, opacity 0.15s; }
+  .demonios .score-display { color: #ff3a3a; text-shadow: 0 0 30px rgba(255,50,50,0.5); }
+  .tobillinium .score-display { color: #a878f8; text-shadow: 0 0 30px rgba(150,80,240,0.5); }
+  .perro .score-display { color: #e4e4e4; text-shadow: 0 0 30px rgba(200,200,200,0.35); }
+  .score-display.bump { transform: scale(1.18); opacity: 0.7; }
+
+  .score-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding-bottom: 14px; }
+
+  .rank-badge {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; transition: all 0.4s ease;
+  }
+  .rank-1 { background: rgba(212,160,23,0.18); color: #d4a017; border: 1px solid rgba(212,160,23,0.5); }
+  .rank-2 { background: rgba(180,180,180,0.12); color: #b0b0b0; border: 1px solid rgba(180,180,180,0.3); }
+  .rank-3 { background: rgba(150,70,10,0.12); color: #9a5010; border: 1px solid rgba(150,70,10,0.3); }
+
+  .corner { position: absolute; width: 16px; height: 16px; border-color: rgba(212,160,23,0.3); border-style: solid; }
+  .corner.tl { top:6px; left:6px; border-width: 1px 0 0 1px; }
+  .corner.tr { top:6px; right:6px; border-width: 1px 1px 0 0; }
+  .corner.bl { bottom:6px; left:6px; border-width: 0 0 1px 1px; }
+  .corner.br { bottom:6px; right:6px; border-width: 0 1px 1px 0; }
+
+  .admin-section { margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; }
+  .admin-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: rgba(255,255,255,0.2); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; border: none; background: transparent; width: 100%; padding: 6px; transition: color 0.2s; font-family: 'Cinzel', Georgia, serif; }
+  .admin-toggle:hover { color: rgba(255,255,255,0.45); }
+
+  .admin-panel { display: none; background: rgba(14,14,14,0.97); border: 1px solid rgba(212,160,23,0.18); border-radius: 10px; padding: 1.4rem; margin-top: 0.75rem; animation: fadeIn 0.2s ease; }
+  .admin-panel.visible { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+
+  .admin-panel h3 { font-size: 12px; color: #d4a017; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 1.2rem; text-align: center; }
+  .pw-row { display: flex; gap: 8px; margin-bottom: 0.75rem; }
+  .pw-row input, .score-controls input[type=number] { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #eee; border-radius: 6px; padding: 8px 12px; font-family: 'Cinzel', Georgia, serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .pw-row input { flex: 1; }
+  .pw-row input:focus, .score-controls input[type=number]:focus { border-color: rgba(212,160,23,0.4); }
+  .score-controls input[type=number] { width: 64px; text-align: center; }
+
+  button.gold { background: rgba(212,160,23,0.12); border: 1px solid rgba(212,160,23,0.35); color: #d4a017; border-radius: 6px; padding: 8px 18px; cursor: pointer; font-family: 'Cinzel', Georgia, serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; transition: background 0.2s; }
+  button.gold:hover { background: rgba(212,160,23,0.25); }
+
+  .score-editor { display: none; }
+  .score-editor.visible { display: block; }
+
+  .score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); }
+  .score-row label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; flex: 1; }
+  .score-row.demonios label { color: #d4a017; }
+  .score-row.tobillinium label { color: #c0a0f0; }
+  .score-row.perro label { color: #c8c8c8; }
+
+  .score-controls { display: flex; align-items: center; gap: 6px; }
+  button.round { width: 30px; height: 30px; border-radius: 50%; background: rgba(212,160,23,0.1); border: 1px solid rgba(212,160,23,0.35); color: #d4a017; cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background 0.15s; font-family: 'Cinzel', Georgia, serif; }
+  button.round:hover { background: rgba(212,160,23,0.25); }
+
+  .score-val { font-size: 20px; font-weight: 700; min-width: 44px; text-align: center; }
+  .score-row.demonios .score-val { color: #ff4444; }
+  .score-row.tobillinium .score-val { color: #a878f8; }
+  .score-row.perro .score-val { color: #e0e0e0; }
+
+  button.set-btn { background: rgba(212,160,23,0.08); border: 1px solid rgba(212,160,23,0.25); color: rgba(212,160,23,0.8); border-radius: 5px; padding: 5px 10px; cursor: pointer; font-family: 'Cinzel', Georgia, serif; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; transition: background 0.15s; }
+  button.set-btn:hover { background: rgba(212,160,23,0.2); }
+
+  .logout-btn { background: rgba(255,50,50,0.08); border: 1px solid rgba(255,50,50,0.25); color: #ff6060; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-family: 'Cinzel', Georgia, serif; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; transition: background 0.15s; }
+  .logout-btn:hover { background: rgba(255,50,50,0.18); }
+
+  .msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; letter-spacing: 1px; }
+  .msg.error { color: #ff5555; }
+  .msg.success { color: #55ee88; }
+
+  .last-updated { text-align: center; font-size: 10px; color: rgba(255,255,255,0.15); letter-spacing: 2px; padding-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="title-section">
+    <h1>⚔ Marcador ⚔</h1>
+    <div class="subtitle">Las Casas de 4to A</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="sync-indicator">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncLabel">Conectando...</span>
+  </div>
+
+  <div class="teams-grid">
+
+    <!-- DEMONIOS -->
+    <div class="team-card demonios" id="card-0">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="rank-badge rank-1" id="rank-0">👑</div>
+      <div class="banner-wrap">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <defs><radialGradient id="bg1" cx="50%" cy="35%"><stop offset="0%" stop-color="#6a0000"/><stop offset="100%" stop-color="#1a0000"/></radialGradient></defs>
+          <path d="M10,0 H190 V200 L100,225 L10,200 Z" fill="url(#bg1)"/>
+          <path d="M15,5 H185 V196 L100,220 L15,196 Z" fill="none" stroke="#d4a017" stroke-width="1.5" opacity="0.4"/>
+          <path d="M22,12 H178 V192 L100,214 L22,192 Z" fill="none" stroke="#d4a017" stroke-width="0.6" opacity="0.2"/>
+          <text x="100" y="130" text-anchor="middle" font-size="110" fill="#d4a017">😈</text>
+          <text x="20" y="28" text-anchor="middle" font-size="14" fill="#d4a017" opacity="0.5">✦</text>
+          <text x="180" y="28" text-anchor="middle" font-size="14" fill="#d4a017" opacity="0.5">✦</text>
+        </svg>
+      </div>
+      <div class="team-name">Demonios</div>
+      <div class="score-display" id="score-0">0</div>
+      <div class="score-label">puntos</div>
+    </div>
+
+    <!-- TOBILLINIUM -->
+    <div class="team-card tobillinium" id="card-1">
+      <div class="corner tl" style="border-color:rgba(160,100,255,0.3)"></div>
+      <div class="corner tr" style="border-color:rgba(160,100,255,0.3)"></div>
+      <div class="corner bl" style="border-color:rgba(160,100,255,0.3)"></div>
+      <div class="corner br" style="border-color:rgba(160,100,255,0.3)"></div>
+      <div class="rank-badge rank-2" id="rank-1">2</div>
+      <div class="banner-wrap">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <defs><radialGradient id="bg2" cx="50%" cy="35%"><stop offset="0%" stop-color="#3a1270"/><stop offset="100%" stop-color="#0e041e"/></radialGradient></defs>
+          <path d="M10,0 H190 V200 L100,225 L10,200 Z" fill="url(#bg2)"/>
+          <path d="M15,5 H185 V196 L100,220 L15,196 Z" fill="none" stroke="#9060d0" stroke-width="1.5" opacity="0.4"/>
+          <path d="M22,12 H178 V192 L100,214 L22,192 Z" fill="none" stroke="#9060d0" stroke-width="0.6" opacity="0.2"/>
+          <text x="100" y="130" text-anchor="middle" font-size="110">🦅</text>
+          <text x="100" y="28" text-anchor="middle" font-size="14" fill="#9060d0" opacity="0.6">✦</text>
+          <text x="20" y="28" text-anchor="middle" font-size="10" fill="#9060d0" opacity="0.4">◆</text>
+          <text x="180" y="28" text-anchor="middle" font-size="10" fill="#9060d0" opacity="0.4">◆</text>
+        </svg>
+      </div>
+      <div class="team-name">Tobillinium</div>
+      <div class="score-display" id="score-1">0</div>
+      <div class="score-label">puntos</div>
+    </div>
+
+    <!-- A CARA DE PERRO -->
+    <div class="team-card perro" id="card-2">
+      <div class="corner tl" style="border-color:rgba(150,150,150,0.2)"></div>
+      <div class="corner tr" style="border-color:rgba(150,150,150,0.2)"></div>
+      <div class="corner bl" style="border-color:rgba(150,150,150,0.2)"></div>
+      <div class="corner br" style="border-color:rgba(150,150,150,0.2)"></div>
+      <div class="rank-badge rank-3" id="rank-2">3</div>
+      <div class="banner-wrap">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <defs><radialGradient id="bg3" cx="50%" cy="35%"><stop offset="0%" stop-color="#222222"/><stop offset="100%" stop-color="#060606"/></radialGradient></defs>
+          <path d="M10,0 H190 V200 L100,225 L10,200 Z" fill="url(#bg3)"/>
+          <path d="M15,5 H185 V196 L100,220 L15,196 Z" fill="none" stroke="#888" stroke-width="1.5" opacity="0.3"/>
+          <path d="M22,12 H178 V192 L100,214 L22,192 Z" fill="none" stroke="#888" stroke-width="0.6" opacity="0.15"/>
+          <text x="100" y="130" text-anchor="middle" font-size="110">🐕</text>
+          <text x="20" y="28" text-anchor="middle" font-size="10" fill="#888" opacity="0.4">◆</text>
+          <text x="180" y="28" text-anchor="middle" font-size="10" fill="#888" opacity="0.4">◆</text>
+        </svg>
+      </div>
+      <div class="team-name">A Cara de Perro</div>
+      <div class="score-display" id="score-2">0</div>
+      <div class="score-label">puntos</div>
+    </div>
+
+  </div>
+
+  <div class="admin-section">
+    <button class="admin-toggle" onclick="toggleAdmin()">🔒 Administrador</button>
+    <div class="admin-panel" id="adminPanel">
+      <h3>⚔ Acceso de Administrador</h3>
+      <div id="loginSection">
+        <div class="pw-row">
+          <input type="password" id="pwInput" placeholder="Contraseña..." onkeydown="if(event.key==='Enter') checkPw()"/>
+          <button class="gold" onclick="checkPw()">Entrar</button>
+        </div>
+        <div class="msg" id="loginMsg"></div>
+      </div>
+      <div class="score-editor" id="scoreEditor">
+        <div class="score-row demonios">
+          <label>Demonios</label>
+          <div class="score-controls">
+            <button class="round" onclick="addScore(0,-1)">−</button>
+            <span class="score-val" id="edit-0">0</span>
+            <button class="round" onclick="addScore(0,1)">+</button>
+            <input type="number" id="set-0" placeholder="0" min="0"/>
+            <button class="set-btn" onclick="setScore(0)">Set</button>
+          </div>
+        </div>
+        <div class="score-row tobillinium">
+          <label>Tobillinium</label>
+          <div class="score-controls">
+            <button class="round" onclick="addScore(1,-1)">−</button>
+            <span class="score-val" id="edit-1">0</span>
+            <button class="round" onclick="addScore(1,1)">+</button>
+            <input type="number" id="set-1" placeholder="0" min="0"/>
+            <button class="set-btn" onclick="setScore(1)">Set</button>
+          </div>
+        </div>
+        <div class="score-row perro">
+          <label>A Cara de Perro</label>
+          <div class="score-controls">
+            <button class="round" onclick="addScore(2,-1)">−</button>
+            <span class="score-val" id="edit-2">0</span>
+            <button class="round" onclick="addScore(2,1)">+</button>
+            <input type="number" id="set-2" placeholder="0" min="0"/>
+            <button class="set-btn" onclick="setScore(2)">Set</button>
+          </div>
+        </div>
+        <div style="text-align:right; margin-top:10px;">
+          <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+        </div>
+        <div class="msg" id="saveMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="last-updated" id="lastUpdated">Conectando a la base de datos...</div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyuK2C5Ow-_9I9wvLoPMymKcm8GMVW9_Y",
+    authDomain: "tablero-de-las-casas.firebaseapp.com",
+    databaseURL: "https://tablero-de-las-casas-default-rtdb.firebaseio.com",
+    projectId: "tablero-de-las-casas",
+    storageBucket: "tablero-de-las-casas.firebasestorage.app",
+    messagingSenderId: "703727252201",
+    appId: "1:703727252201:web:626a65e90a83bfae3b3678"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const scoresRef = ref(db, 'scores');
+
+  const ADMIN_PW = 'Ravenclaw123';
+  let scores = [0, 0, 0];
+
+  // Listen for realtime changes
+  onValue(scoresRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.values) {
+      scores = data.values;
+      renderScores();
+      const updated = data.updated || '';
+      document.getElementById('lastUpdated').textContent = updated ? 'Última actualización: ' + updated : '';
+    }
+    // Mark as online
+    document.getElementById('syncDot').className = 'sync-dot online';
+    document.getElementById('syncLabel').textContent = 'En vivo';
+  }, (error) => {
+    document.getElementById('syncDot').className = 'sync-dot offline';
+    document.getElementById('syncLabel').textContent = 'Sin conexión';
+    document.getElementById('lastUpdated').textContent = 'Error de conexión con Firebase';
+  });
+
+  function saveToFirebase() {
+    const updated = new Date().toLocaleString('es-AR');
+    set(scoresRef, { values: scores, updated })
+      .then(() => {
+        const msg = document.getElementById('saveMsg');
+        msg.className = 'msg success';
+        msg.textContent = '✓ Guardado en la nube';
+        setTimeout(() => { msg.textContent = ''; }, 1800);
+      })
+      .catch(() => {
+        const msg = document.getElementById('saveMsg');
+        msg.className = 'msg error';
+        msg.textContent = '✗ Error al guardar';
+      });
+  }
+
+  function renderScores() {
+    for (let i = 0; i < 3; i++) {
+      document.getElementById('score-' + i).textContent = scores[i];
+      document.getElementById('edit-' + i).textContent = scores[i];
+    }
+    updateRanks();
+  }
+
+  function updateRanks() {
+    const indexed = scores.map((s, i) => ({ s, i })).sort((a, b) => b.s - a.s);
+    const labels = ['👑', '2', '3'];
+    const cls = ['rank-1', 'rank-2', 'rank-3'];
+    for (let pos = 0; pos < 3; pos++) {
+      const idx = indexed[pos].i;
+      const b = document.getElementById('rank-' + idx);
+      b.textContent = labels[pos];
+      b.className = 'rank-badge ' + cls[pos];
+    }
+  }
+
+  function bumpAnim(i) {
+    const el = document.getElementById('score-' + i);
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 200);
+  }
+
+  window.addScore = function(team, delta) {
+    scores[team] = Math.max(0, scores[team] + delta);
+    renderScores();
+    bumpAnim(team);
+    saveToFirebase();
+  };
+
+  window.setScore = function(team) {
+    const val = parseInt(document.getElementById('set-' + team).value);
+    if (!isNaN(val) && val >= 0) {
+      scores[team] = val;
+      document.getElementById('set-' + team).value = '';
+      renderScores();
+      bumpAnim(team);
+      saveToFirebase();
+    }
+  };
+
+  window.toggleAdmin = function() {
+    document.getElementById('adminPanel').classList.toggle('visible');
+  };
+
+  window.checkPw = function() {
+    const val = document.getElementById('pwInput').value;
+    if (val === ADMIN_PW) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('scoreEditor').classList.add('visible');
+    } else {
+      const msg = document.getElementById('loginMsg');
+      msg.className = 'msg error';
+      msg.textContent = '✗ Contraseña incorrecta';
+      setTimeout(() => { msg.textContent = ''; }, 2000);
+    }
+  };
+
+  window.logout = function() {
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('scoreEditor').classList.remove('visible');
+    document.getElementById('pwInput').value = '';
+    document.getElementById('adminPanel').classList.remove('visible');
+  };
+</script>
+</body>
+</html>
